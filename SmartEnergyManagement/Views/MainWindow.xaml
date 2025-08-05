@@ -1,0 +1,135 @@
+<Window x:Class="SmartEnergyManagement.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SmartEnergyManagement.ViewModels"
+        Title="新能源智慧运行管理系统" Height="600" Width="800"
+        WindowStartupLocation="CenterScreen">
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+    <Grid Background="#f0f0f0">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        
+        <!-- 标题栏 -->
+        <Border Grid.Row="0" Background="#2c3e50" Padding="10">
+            <TextBlock Text="新能源智慧运行管理系统" 
+                       FontSize="24" 
+                       FontWeight="Bold" 
+                       Foreground="White"
+                       HorizontalAlignment="Center"/>
+        </Border>
+        
+        <!-- 主内容区 -->
+        <Grid Grid.Row="1" Margin="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            
+            <!-- 左侧：能源数据 -->
+            <GroupBox Header="能源数据监控" Grid.Column="0" Margin="5" Padding="10">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    
+                    <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="微风发电功率:" FontSize="14" Width="150"/>
+                        <TextBlock Text="{Binding EnergySystem.WindPower, StringFormat={}{0:0.00} kW}" 
+                                   FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="光伏发电功率:" FontSize="14" Width="150"/>
+                        <TextBlock Text="{Binding EnergySystem.SolarPower, StringFormat={}{0:0.00} kW}" 
+                                   FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="总发电功率:" FontSize="14" Width="150"/>
+                        <TextBlock Text="{Binding EnergySystem.TotalPower, StringFormat={}{0:0.00} kW}" 
+                                   FontSize="14" FontWeight="Bold" 
+                                   Foreground="{Binding EnergySystem.TotalPower, 
+                                                 Converter={StaticResource PowerToColorConverter}}"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="储能电池容量:" FontSize="14" Width="150"/>
+                        <TextBlock Text="{Binding EnergySystem.BatteryPercentage, StringFormat={}{0:0.00}%}" 
+                                   FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    
+                    <StackPanel Grid.Row="4" Orientation="Horizontal" Margin="0,5">
+                        <TextBlock Text="家庭用电功率:" FontSize="14" Width="150"/>
+                        <TextBlock Text="{Binding EnergySystem.HouseholdPower, StringFormat={}{0:0.00} kW}" 
+                                   FontSize="14" FontWeight="Bold"/>
+                    </StackPanel>
+                    
+                    <!-- 电池电量进度条 -->
+                    <StackPanel Grid.Row="5" Orientation="Vertical" Margin="0,10">
+                        <TextBlock Text="电池状态" FontSize="14" FontWeight="Bold"/>
+                        <ProgressBar Height="20" 
+                                     Value="{Binding EnergySystem.BatteryPercentage}" 
+                                     Maximum="100"
+                                     Background="#dddddd"
+                                     Foreground="{Binding EnergySystem.BatteryPercentage, 
+                                                   Converter={StaticResource BatteryToColorConverter}}"/>
+                        <TextBlock Text="{Binding EnergySystem.BatteryPercentage, StringFormat={}{0:0.00}% 电量}" 
+                                   FontSize="12" HorizontalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </GroupBox>
+            
+            <!-- 右侧：安全参数 -->
+            <GroupBox Header="安全参数监控" Grid.Column="1" Margin="5" Padding="10">
+                <ItemsControl ItemsSource="{Binding EnergySystem.SecurityParameters}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="#cccccc" BorderThickness="1" CornerRadius="5" 
+                                    Margin="5" Padding="10" Background="White">
+                                <StackPanel>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" FontSize="16" FontWeight="Bold" Width="100"/>
+                                        <TextBlock Text="{Binding Value, StringFormat={}{0:0.00} }" 
+                                                   FontSize="16" FontWeight="Bold" 
+                                                   Foreground="{Binding StatusColor}"/>
+                                        <TextBlock Text="{Binding Unit}" FontSize="16"/>
+                                    </StackPanel>
+                                    
+                                    <ProgressBar Height="15" Margin="0,5"
+                                                 Minimum="{Binding MinValue}"
+                                                 Maximum="{Binding MaxValue}"
+                                                 Value="{Binding Value}"
+                                                 Background="#eeeeee"
+                                                 Foreground="{Binding StatusColor}"/>
+                                    
+                                    <TextBlock Text="{Binding IsNormal, Converter={StaticResource StatusToStringConverter}}" 
+                                               FontSize="12" HorizontalAlignment="Right"
+                                               Foreground="{Binding StatusColor}"/>
+                                </StackPanel>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </GroupBox>
+        </Grid>
+        
+        <!-- 状态栏 -->
+        <Border Grid.Row="2" Background="#34495e" Padding="10">
+            <TextBlock Text="系统运行正常" 
+                       FontSize="14" 
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       FontWeight="Bold"/>
+        </Border>
+    </Grid>
+</Window>
+    
